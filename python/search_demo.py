@@ -114,5 +114,5 @@ class Comment(BaseHandler):
 
 application = webapp2.WSGIApplication(
     [('/', MainPage),
-     ('/sign', Comment)],
+     ('/add', Comment)],
     debug=True)
