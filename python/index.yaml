@@ -1,0 +1,7 @@
+indexes:
+
+- kind: bby_product
+  ancestor: no
+  properties:
+  - name: name
+    direction: asc
