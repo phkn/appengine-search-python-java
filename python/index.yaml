@@ -3,7 +3,7 @@ indexes:
 - kind: bby_product
   ancestor: no
   properties:
-  - name: id
+  - name: __key__
     direction: asc
   - name: name
     direction: asc
