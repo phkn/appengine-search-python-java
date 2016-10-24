@@ -18,7 +18,7 @@ from webapp2_extras import jinja2
 from google.appengine.api import search
 from google.appengine.api import users
 
-_INDEX_NAME = 'greeting'
+_INDEX_NAME = 'bby_product'
 
 # _ENCODE_TRANS_TABLE = string.maketrans('-: .@', '_____')
 
@@ -45,9 +45,9 @@ class MainPage(BaseHandler):
             query = parse_qs(uri.query)
             query = query['query'][0]
 
-        # sort results by author descending
+        # sort results by name descending
         expr_list = [search.SortExpression(
-            expression='author', default_value='',
+            expression='name', default_value='',
             direction=search.SortExpression.DESCENDING)]
         # construct the sort options
         sort_opts = search.SortOptions(
@@ -73,41 +73,40 @@ class MainPage(BaseHandler):
         self.render_template('index.html', template_values)
 
 
-def CreateDocument(author, content):
-    """Creates a search.Document from content written by the author."""
-    if author:
-        nickname = author.nickname().split('@')[0]
-    else:
-        nickname = 'anonymous'
-    # Let the search service supply the document id.
-    return search.Document(
-        fields=[search.TextField(name='author', value=nickname),
-                search.TextField(name='comment', value=content),
-                search.DateField(name='date', value=datetime.now().date())])
+# def CreateDocument(author, content):
+#     """Creates a search.Document from content written by the author."""
+#     if author:
+#         nickname = author.nickname().split('@')[0]
+#     else:
+#         nickname = 'anonymous'
+#     # Let the search service supply the document id.
+#     return search.Document(
+#         fields=[search.TextField(name='author', value=nickname),
+#                 search.TextField(name='comment', value=content),
+#                 search.DateField(name='date', value=datetime.now().date())])
 
 
-class Comment(BaseHandler):
-    """Handles requests to index comments."""
+# class Comment(BaseHandler):
+#     """Handles requests to index comments."""
 
-    def post(self):
-        """Handles a post request."""
-        author = None
-        if users.get_current_user():
-            author = users.get_current_user()
+#     def post(self):
+#         """Handles a post request."""
+#         author = None
+#         if users.get_current_user():
+#             author = users.get_current_user()
 
-        content = self.request.get('content')
-        query = self.request.get('search')
-        if content:
-            search.Index(name=_INDEX_NAME).put(CreateDocument(author, content))
-        if query:
-            self.redirect('/?' + urllib.urlencode(
-                #{'query': query}))
-                {'query': query.encode('utf-8')}))
-        else:
-            self.redirect('/')
+#         content = self.request.get('content')
+#         query = self.request.get('search')
+#         if content:
+#             search.Index(name=_INDEX_NAME).put(CreateDocument(author, content))
+#         if query:
+#             self.redirect('/?' + urllib.urlencode(
+#                 #{'query': query}))
+#                 {'query': query.encode('utf-8')}))
+#         else:
+#             self.redirect('/')
 
 
 application = webapp2.WSGIApplication(
-    [('/', MainPage),
-     ('/sign', Comment)],
+    [('/', MainPage)],
     debug=True)
