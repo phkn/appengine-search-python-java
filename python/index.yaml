@@ -3,6 +3,14 @@ indexes:
 - kind: bby_product
   ancestor: no
   properties:
+  - name: id
+    direction: asc
+  - name: name
+    direction: asc
+
+- kind: bby_product
+  ancestor: no
+  properties:
   - name: name
     direction: asc
   - name: onSale
