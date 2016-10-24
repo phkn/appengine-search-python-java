@@ -50,7 +50,7 @@ class MainPage(BaseHandler):
             expression='salesRankMediumTerm', default_value='',
             direction=search.SortExpression.DESCENDING), search.SortExpression(
             expression='bestSellingRank', default_value='',
-            direction=search.SortExpression.DESCENDING),]
+            direction=search.SortExpression.DESCENDING)]
 
         # construct the sort options
         sort_opts = search.SortOptions(
@@ -94,8 +94,8 @@ def CreateDocument(name):
         #         search.TextField(name='image', value=image),
         #         search.TextField(name='url', value=url)])
 
-class Comment(BaseHandler):
-    """Handles requests to index comments."""
+class AddIndex(BaseHandler):
+    """Handles requests to index products."""
 
     def post(self):
 
@@ -114,5 +114,5 @@ class Comment(BaseHandler):
 
 application = webapp2.WSGIApplication(
     [('/', MainPage),
-     ('/add', Comment)],
+     ('/add', AddIndex)],
     debug=True)

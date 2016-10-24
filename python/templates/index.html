@@ -27,7 +27,7 @@
 
     </form>
 
-    {{number_returned}} of {{results.number_found}} comments found <p>
+    {{number_returned}} of {{results.number_found}} products found <p>
     {% for scored_document in results %}
       {% for f in scored_document.fields %}
         {{f.value}} &nbsp;
