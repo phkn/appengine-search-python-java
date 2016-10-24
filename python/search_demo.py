@@ -99,7 +99,7 @@ class Comment(BaseHandler):
 
     def post(self):
 
-        content = self.request.get('name')
+        name = self.request.get('name')
         query = self.request.get('search')
         if name:
             # SAUCE: CREATE A NEW DOCUMENT AND INDEX IT
