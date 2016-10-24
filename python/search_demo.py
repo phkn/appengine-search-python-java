@@ -83,16 +83,6 @@ def CreateDocument(name):
     # Let the search service supply the document id, for testing only
     return search.Document(
         fields=[search.TextField(name='name', value=name)])
-        # fields=[search.TextField(name='name', value=name),
-        #         search.TextField(name='department', value=department),
-        #         search.NumberField(name='sku', value=sku),
-        #         search.NumberField(name='regularPrice', value=regularPrice),
-        #         search.NumberField(name='salePrice', value=salePrice),
-        #         search.NumberField(name='onSale', value=onSale),
-        #         search.NumberField(name='salesRankMediumTerm', value=salesRankMediumTerm),
-        #         search.NumberField(name='bestSellingRank', value=bestSellingRank),
-        #         search.TextField(name='image', value=image),
-        #         search.TextField(name='url', value=url)])
 
 class AddIndex(BaseHandler):
     """Handles requests to index products."""
