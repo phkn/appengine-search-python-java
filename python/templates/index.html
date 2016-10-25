@@ -17,12 +17,17 @@
     </form>
 
     {{number_returned}} of {{results.number_found}} products found <p>
+    <ul>
     {% for scored_document in results %}
+      <li>
+      <!-- doc_id: {{scored_document.doc_id }} -->
       {% for f in scored_document.fields %}
-        {{f.value}} &nbsp;
+        {{f.value}}
+        &nbsp;
       {% endfor %}
-      <p>
+      </li>
     {% endfor %}
+    </ul>
 
     <a href="{{ url }}">{{ url_linktext }}</a>
 
