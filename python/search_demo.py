@@ -87,9 +87,7 @@ def CreateDocument(name, product_id=None):
             fields=nameFields)
     else:
     # Let the search service supply the document id, for testing only
-    return search.Document(
-            # doc_id=product_id,
-            fields=nameFields)
+        return search.Document(fields=nameFields)
 
 
 class AddIndex(BaseHandler):
