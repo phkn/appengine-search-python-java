@@ -22,7 +22,7 @@
       <li>
       <!-- doc_id: {{scored_document.doc_id }} -->
       {% for f in scored_document.fields %}
-        {{f.value}}
+        <!-- {{f.name}} --> {{f.value}}
         &nbsp;
       {% endfor %}
       </li>
