@@ -154,7 +154,7 @@ class BulkIndex(BaseHandler):
         
         template_values = {
             'products': products,
-            'offset': NDB_OFFSET
+            'offset': NDB_OFFSET,
             'number_returned': len(products),
         }
 
