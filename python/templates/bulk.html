@@ -10,6 +10,8 @@
     <h2>Bulk Index</h2>
     <form action="/bulkindex" method="post">
 
+    <div>Fetch: <input type="text" name="fetch" value="{{fetch}}" /></div>
+    <div>Offset: <input type="text" name="offset" value="{{offset}}" /></div>
     <input type="hidden" name="confirm" value="true" />
       <div><input type="submit" value="Index Things"/></div>
 
@@ -17,7 +19,6 @@
 
     <hr/>
 
-    Offset: {{offset}} <p>
     Here's {{number_returned}} (more) products to index: <p>
     <ul>
     {% for product in products %}

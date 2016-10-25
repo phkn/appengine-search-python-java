@@ -166,11 +166,23 @@ class BulkIndex(BaseHandler):
         # query NDB for some items that we want to index and display them.
         # Using key order for "random" sampling
 
-        products = self.getNextProducts(NDB_FETCH, NDB_OFFSET)
+        logging.info('GET: fetch %s, offset %s', self.request.get('fetch'), self.request.get('offset'))
+
+        try:
+            fetch = int(self.request.get('fetch'))
+        except:
+            fetch = NDB_FETCH
+        try:
+            offset = int(self.request.get('offset'))
+        except:
+            offset = NDB_OFFSET
+
+        products = self.getNextProducts(fetch, offset)
         
         template_values = {
             'products': products,
-            'offset': NDB_OFFSET,
+            'fetch': fetch,
+            'offset': offset,
             'number_returned': len(products),
         }
 
@@ -192,9 +204,20 @@ class BulkIndex(BaseHandler):
             # products = prodquery.fetch(20, projection=[BestBuyProduct.name])
             ####################
 
-            products = self.getNextProducts(NDB_FETCH, NDB_OFFSET)
-            
+            logging.info('POST: fetch %s, offset %s', self.request.get('fetch'), self.request.get('offset'))
+
+            try:
+                fetch = int(self.request.get('fetch'))
+            except:
+                fetch = NDB_FETCH
+            try:
+                offset = int(self.request.get('offset'))
+            except:
+                offset = NDB_OFFSET
+
+            products = self.getNextProducts(NDB_FETCH, NDB_OFFSET)            
             self.indexProductBatch(products)
+
         if superconfirm:
             # ridiculously large batch update
             logging.warning('SUPERCONFIRM:  All right, you asked for it...')
@@ -205,7 +228,10 @@ class BulkIndex(BaseHandler):
                 self.indexProductBatch(products)
 
             logging.warning('SUPERCONFIRM:  All done... go to bed already!')
-        self.redirect('/bulkindex')
+
+        self.redirect('/bulkindex?'+urllib.urlencode(
+            {'fetch': fetch, 'offset': offset}))
+                
 
 application = webapp2.WSGIApplication(
     [('/', MainPage),
