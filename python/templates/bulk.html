@@ -1,0 +1,29 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <link rel="stylesheet" type="text/css" href="/static/css/main.css"/>
+    <title>Search Demonstration App</title>
+  </head>
+  <body style="margin:20px;">
+
+    <form action="/bulkindex" method="post">
+      <div>Bulk Index</div>
+
+      <div><textarea name="name" rows="1" cols="60"></textarea></div>
+      <div><input type="submit" value="Do ALL The Things"/></div>
+
+    </form>
+
+    Here's {{number_returned}} (more) products to index: <p>
+    <ul>
+    {% for product in products %}
+      <li>
+        <!--{{product.key}}--> {{product.name}}
+      </li>
+    {% endfor %}
+	</ul>
+    <a href="{{ url }}">{{ url_linktext }}</a>
+
+  </body>
+</html>

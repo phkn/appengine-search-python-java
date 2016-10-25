@@ -17,10 +17,23 @@ from webapp2_extras import jinja2
 
 from google.appengine.api import search
 from google.appengine.api import users
+from google.appengine.ext import ndb
 
 _INDEX_NAME = 'bby_product'
 
 # _ENCODE_TRANS_TABLE = string.maketrans('-: .@', '_____')
+
+class BestBuyProduct(ndb.Model):
+    name = ndb.StringProperty()
+    department = ndb.StringProperty()
+    regularPrice = ndb.FloatProperty()
+    salePrice = ndb.FloatProperty()
+    onSale = ndb.BooleanProperty()
+    salesRankMediumTerm = ndb.IntegerProperty()
+    bestSellingRank = ndb.IntegerProperty()
+    sku = ndb.IntegerProperty()
+    image = ndb.StringProperty()
+    url = ndb.StringProperty()
 
 class BaseHandler(webapp2.RequestHandler):
     """The other handlers inherit from this class.  Provides some helper methods
@@ -86,7 +99,7 @@ def CreateDocument(name, product_id=None):
             doc_id=product_id,
             fields=nameFields)
     else:
-    # Let the search service supply the document id, for testing only
+        # Let the search service supply the document id, for testing only
         return search.Document(fields=nameFields)
 
 
@@ -107,8 +120,33 @@ class AddIndex(BaseHandler):
         else:
             self.redirect('/')
 
+class BulkIndex(BaseHandler):
+    """Handles a bulk update of the search index from GCDS/NDB"""
+
+    def get(self):
+
+        # query NDB for some items that we want to index and display them
+
+        prodquery = BestBuyProduct.query()
+        products = prodquery.fetch(20, projection=[BestBuyProduct.name])
+
+        template_values = {
+            'products': products,
+            'number_returned': len(products),
+        }
+
+        self.render_template('bulk.html', template_values)
+
+
+    def post(self):
+        confirm = self.request.get('confirm')
+
+        # run the query and also GAE index the items, then return to display what we just did
+
+        self.redirect('/index')
 
 application = webapp2.WSGIApplication(
     [('/', MainPage),
-     ('/add', AddIndex)],
+     ('/add', AddIndex),
+     ('/bulkindex' , BulkIndex)],
     debug=True)
