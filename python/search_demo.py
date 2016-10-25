@@ -30,6 +30,12 @@ NDB_OFFSET = 0
 _INDEX_NAME = 'bby_product'
 _INDEX_BATCH = 200
 
+# nifty function to split our long array data into batches
+def chunks(l, n):
+    """Yield successive n-sized chunks from l."""
+    for i in xrange(0, len(l), n):
+        yield l[i:i + n]
+
 class BestBuyProduct(ndb.Model):
     @classmethod
     def _get_kind(cls):
@@ -148,6 +154,7 @@ class BulkIndex(BaseHandler):
         
         template_values = {
             'products': products,
+            'offset': NDB_OFFSET
             'number_returned': len(products),
         }
 
@@ -170,11 +177,17 @@ class BulkIndex(BaseHandler):
 
             products = self.getNextProducts(NDB_FETCH, NDB_OFFSET)
             
-            proddocs = []
-            for product in products:
-                # logging.warning('FIXME Create index: %s: %s', product.key.id(), product.name)
-                proddocs.append(CreateDocument(product.name, str(product.key.id())))
-            search.Index(name=_INDEX_NAME).put(proddocs)
+            # split our data into batches...
+            for productchunk in chunks(products, _INDEX_BATCH):
+                # make some noise for the next product we'll touch
+                loggedprod=productchunk[0];
+                logging.warning('CHUNK! Creating %s index entries, next will be: %s: %s', _INDEX_BATCH, loggedprod.key.id(), loggedprod.name)
+
+                # batch index our searchable data
+                proddocs = []
+                for product in productchunk:
+                    proddocs.append(CreateDocument(product.name, str(product.key.id())))
+                search.Index(name=_INDEX_NAME).put(proddocs)
 
         self.redirect('/bulkindex')
 
