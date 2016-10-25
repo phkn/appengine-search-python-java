@@ -76,13 +76,21 @@ class MainPage(BaseHandler):
         self.render_template('index.html', template_values)
 
 
-# def CreateDocument(sku, name, department, regularPrice, salePrice, onSale, salesRankMediumTerm, bestSellingRank, image, url):
-def CreateDocument(name):
+def CreateDocument(name, product_id=None):
     """Creates a search.Document from the named product."""
+    nameFields = [search.TextField(name='name', value=name)]
 
+    if product_id:
+        # Specify using the product_id we want
+        return search.Document(
+            doc_id=product_id,
+            fields=nameFields)
+    else:
     # Let the search service supply the document id, for testing only
     return search.Document(
-        fields=[search.TextField(name='name', value=name)])
+            # doc_id=product_id,
+            fields=nameFields)
+
 
 class AddIndex(BaseHandler):
     """Handles requests to index products."""
