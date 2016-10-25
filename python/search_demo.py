@@ -24,6 +24,9 @@ _INDEX_NAME = 'bby_product'
 # _ENCODE_TRANS_TABLE = string.maketrans('-: .@', '_____')
 
 class BestBuyProduct(ndb.Model):
+    @classmethod
+    def _get_kind(cls):
+      return _INDEX_NAME
     name = ndb.StringProperty()
     department = ndb.StringProperty()
     regularPrice = ndb.FloatProperty()
