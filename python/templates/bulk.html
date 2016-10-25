@@ -7,13 +7,15 @@
   </head>
   <body style="margin:20px;">
 
+    <h2>Bulk Index</h2>
     <form action="/bulkindex" method="post">
-      <div>Bulk Index</div>
 
     <input type="hidden" name="confirm" value="true" />
-      <div><input type="submit" value="Do ALL The Things"/></div>
+      <div><input type="submit" value="Index Things"/></div>
 
     </form>
+
+    <hr/>
 
     Offset: {{offset}} <p>
     Here's {{number_returned}} (more) products to index: <p>
@@ -24,6 +26,17 @@
       </li>
     {% endfor %}
 	</ul>
+
+  <hr/>
+
+  <h4>MAXIMUM EFFORT!</h4>
+
+    <form action="/bulkindex" method="post">
+
+      <div><input type="submit" value="Index ALL The Things"/>
+      ( <input type="checkbox" name="superconfirm" value="true" />I mean it! )</div>
+
+    </form>
 
   </body>
 </html>

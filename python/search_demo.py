@@ -29,6 +29,8 @@ NDB_OFFSET = 0
 # don't change these
 _INDEX_NAME = 'bby_product'
 _INDEX_BATCH = 200
+# how many records we have (upper limit of massive bulk query)
+_NDB_TOTAL_SIZE = 2000000
 
 # nifty function to split our long array data into batches
 def chunks(l, n):
@@ -145,6 +147,20 @@ class BulkIndex(BaseHandler):
         products = prodquery.fetch(fetchnum, offset=offsetnum, projection=[BestBuyProduct.name])
         return products
 
+    def indexProductBatch(self, products):
+        # split our data into batches...
+        for productchunk in chunks(products, _INDEX_BATCH):
+            # make some noise for the next product we'll touch
+            loggedprod=productchunk[0];
+            logging.warning('CHUNK! About to create %s index entries, next will be: %s: %s', len(productchunk), loggedprod.key.id(), loggedprod.name)
+
+            # batch index our searchable data
+            proddocs = []
+            for product in productchunk:
+                proddocs.append(CreateDocument(product.name, str(product.key.id())))
+            search.Index(name=_INDEX_NAME).put(proddocs)
+
+
     def get(self):
 
         # query NDB for some items that we want to index and display them.
@@ -163,6 +179,7 @@ class BulkIndex(BaseHandler):
 
     def post(self):
         confirm = self.request.get('confirm')
+        superconfirm = self.request.get('superconfirm')
 
         # run the query and also GAE index the items, then return to display what we just did
         if confirm:
@@ -177,18 +194,17 @@ class BulkIndex(BaseHandler):
 
             products = self.getNextProducts(NDB_FETCH, NDB_OFFSET)
             
-            # split our data into batches...
-            for productchunk in chunks(products, _INDEX_BATCH):
-                # make some noise for the next product we'll touch
-                loggedprod=productchunk[0];
-                logging.warning('CHUNK! Creating %s index entries, next will be: %s: %s', len(productchunk), loggedprod.key.id(), loggedprod.name)
+            self.indexProductBatch(products)
+        if superconfirm:
+            # ridiculously large batch update
+            logging.warning('SUPERCONFIRM:  All right, you asked for it...')
 
-                # batch index our searchable data
-                proddocs = []
-                for product in productchunk:
-                    proddocs.append(CreateDocument(product.name, str(product.key.id())))
-                search.Index(name=_INDEX_NAME).put(proddocs)
+            for massoffset in xrange(0, _NDB_TOTAL_SIZE, NDB_FETCH):
+                logging.warning('YOWZAH! Here comes another %s products, offset %s ...', NDB_FETCH, massoffset)
+                products = self.getNextProducts(NDB_FETCH, massoffset)
+                self.indexProductBatch(products)
 
+            logging.warning('SUPERCONFIRM:  All done... go to bed already!')
         self.redirect('/bulkindex')
 
 application = webapp2.WSGIApplication(
