@@ -86,6 +86,7 @@ class MainPage(BaseHandler):
         template_values = {
             'results': results,
             'number_returned': len(results.results),
+            'query': query,
             'url': url,
             'url_linktext': url_linktext,
         }
