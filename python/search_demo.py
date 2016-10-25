@@ -12,6 +12,7 @@ import string
 import urllib
 from urlparse import urlparse
 
+import logging
 import webapp2
 from webapp2_extras import jinja2
 
@@ -129,10 +130,12 @@ class BulkIndex(BaseHandler):
 
     def get(self):
 
-        # query NDB for some items that we want to index and display them
+        # query NDB for some items that we want to index and display them.
+        # Using key order for "random" sampling
 
-        prodquery = BestBuyProduct.query(BestBuyProduct.name != None)
+        prodquery = BestBuyProduct.query().order(BestBuyProduct.key)
         products = prodquery.fetch(200, projection=[BestBuyProduct.name])
+        
 
         template_values = {
             'products': products,
@@ -146,8 +149,24 @@ class BulkIndex(BaseHandler):
         confirm = self.request.get('confirm')
 
         # run the query and also GAE index the items, then return to display what we just did
+        if confirm:
+    
+            ### REPEATABILITY-SAFE VERSION:
+            ### Starts with the "weird" names that we don't care about messing up,
+            ### And only does a few of them... use this when it's broken
+            ####################
+            # prodquery = BestBuyProduct.query(BestBuyProduct.name != None)
+            # products = prodquery.fetch(20, projection=[BestBuyProduct.name])
+            ####################
 
-        self.redirect('/index')
+            prodquery = BestBuyProduct.query().order(BestBuyProduct.key)
+            products = prodquery.fetch(200, projection=[BestBuyProduct.name])
+            
+            for product in products:
+                # logging.warning('FIXME Create index: %s: %s', product.key.id(), product.name)
+                search.Index(name=_INDEX_NAME).put(CreateDocument(product.name, str(product.key.id())))
+
+        self.redirect('/bulkindex')
 
 application = webapp2.WSGIApplication(
     [('/', MainPage),
