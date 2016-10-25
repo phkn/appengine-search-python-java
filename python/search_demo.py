@@ -130,8 +130,8 @@ class BulkIndex(BaseHandler):
 
         # query NDB for some items that we want to index and display them
 
-        prodquery = BestBuyProduct.query()
-        products = prodquery.fetch(20, projection=[BestBuyProduct.name])
+        prodquery = BestBuyProduct.query(BestBuyProduct.name != None)
+        products = prodquery.fetch(200, projection=[BestBuyProduct.name])
 
         template_values = {
             'products': products,
