@@ -20,9 +20,15 @@ from google.appengine.api import search
 from google.appengine.api import users
 from google.appengine.ext import ndb
 
-_INDEX_NAME = 'bby_product'
+# change these if you want
+NDB_FETCH = 2000
+NDB_OFFSET = 0
 
 # _ENCODE_TRANS_TABLE = string.maketrans('-: .@', '_____')
+
+# don't change these
+_INDEX_NAME = 'bby_product'
+_INDEX_BATCH = 200
 
 class BestBuyProduct(ndb.Model):
     @classmethod
@@ -128,15 +134,18 @@ class AddIndex(BaseHandler):
 class BulkIndex(BaseHandler):
     """Handles a bulk update of the search index from GCDS/NDB"""
 
+    def getNextProducts(self, fetchnum=200, offsetnum=0):
+        prodquery = BestBuyProduct.query().order(BestBuyProduct.key)
+        products = prodquery.fetch(fetchnum, offset=offsetnum, projection=[BestBuyProduct.name])
+        return products
+
     def get(self):
 
         # query NDB for some items that we want to index and display them.
         # Using key order for "random" sampling
 
-        prodquery = BestBuyProduct.query().order(BestBuyProduct.key)
-        products = prodquery.fetch(200, projection=[BestBuyProduct.name])
+        products = self.getNextProducts(NDB_FETCH, NDB_OFFSET)
         
-
         template_values = {
             'products': products,
             'number_returned': len(products),
@@ -159,12 +168,13 @@ class BulkIndex(BaseHandler):
             # products = prodquery.fetch(20, projection=[BestBuyProduct.name])
             ####################
 
-            prodquery = BestBuyProduct.query().order(BestBuyProduct.key)
-            products = prodquery.fetch(200, projection=[BestBuyProduct.name])
+            products = self.getNextProducts(NDB_FETCH, NDB_OFFSET)
             
+            proddocs = []
             for product in products:
                 # logging.warning('FIXME Create index: %s: %s', product.key.id(), product.name)
-                search.Index(name=_INDEX_NAME).put(CreateDocument(product.name, str(product.key.id())))
+                proddocs.append(CreateDocument(product.name, str(product.key.id())))
+            search.Index(name=_INDEX_NAME).put(proddocs)
 
         self.redirect('/bulkindex')
 
