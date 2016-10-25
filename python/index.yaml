@@ -35,6 +35,16 @@ indexes:
 - kind: bby_product
   ancestor: no
   properties:
+  - name: name
+    direction: asc
+  - name: salesRankMediumTerm
+    direction: desc
+  - name: bestSellingRank
+    direction: desc
+
+- kind: bby_product
+  ancestor: no
+  properties:
   - name: regularPrice
     direction: asc
   - name: salePrice
