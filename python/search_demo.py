@@ -181,7 +181,7 @@ class BulkIndex(BaseHandler):
             for productchunk in chunks(products, _INDEX_BATCH):
                 # make some noise for the next product we'll touch
                 loggedprod=productchunk[0];
-                logging.warning('CHUNK! Creating %s index entries, next will be: %s: %s', _INDEX_BATCH, loggedprod.key.id(), loggedprod.name)
+                logging.warning('CHUNK! Creating %s index entries, next will be: %s: %s', len(productchunk), loggedprod.key.id(), loggedprod.name)
 
                 # batch index our searchable data
                 proddocs = []
