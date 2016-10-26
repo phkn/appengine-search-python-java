@@ -27,7 +27,8 @@ NDB_OFFSET = 0
 # _ENCODE_TRANS_TABLE = string.maketrans('-: .@', '_____')
 
 # don't change these
-_INDEX_NAME = 'bby_product'
+_INDEX_NAME = 'bby_product_sortable'
+_NDB_NAME = 'bby_product'
 _INDEX_BATCH = 200
 # how many records we have (upper limit of massive bulk query)
 _NDB_TOTAL_SIZE = 2000000
@@ -41,7 +42,7 @@ def chunks(l, n):
 class BestBuyProduct(ndb.Model):
     @classmethod
     def _get_kind(cls):
-      return _INDEX_NAME
+      return _NDB_NAME
     name = ndb.StringProperty()
     department = ndb.StringProperty()
     regularPrice = ndb.FloatProperty()
@@ -122,6 +123,31 @@ def CreateDocument(name, product_id=None):
         return search.Document(fields=nameFields)
 
 
+def CreateSortableDocument(name, product_id, department, bestSellingRank, salesRankMediumTerm, onSale):
+    """Creates a search.Document from the named product."""
+    if not bestSellingRank:
+        bestSellingRank = 0
+    if not salesRankMediumTerm:
+        salesRankMediumTerm = 0
+    if not onSale:
+        onSale = 0
+
+    nameFields = [search.TextField(name='name', value=name),
+                  search.TextField(name='department', value=department),
+                  search.NumberField(name='bestSellingRank', value=bestSellingRank),
+                  search.NumberField(name='salesRankMediumTerm', value=salesRankMediumTerm),
+                  search.NumberField(name='onSale', value=onSale)]
+
+    if product_id:
+        # Specify using the product_id we want
+        return search.Document(
+            doc_id=product_id,
+            fields=nameFields)
+    else:
+        # Let the search service supply the document id, for testing only
+        return search.Document(fields=nameFields)
+
+
 class AddIndex(BaseHandler):
     """Handles requests to index products."""
 
@@ -144,7 +170,7 @@ class BulkIndex(BaseHandler):
 
     def getNextProducts(self, fetchnum=200, offsetnum=0):
         prodquery = BestBuyProduct.query().order(BestBuyProduct.key)
-        products = prodquery.fetch(fetchnum, offset=offsetnum, projection=[BestBuyProduct.name])
+        products = prodquery.fetch(fetchnum, offset=offsetnum)
         return products
 
     def indexProductBatch(self, products):
@@ -157,7 +183,13 @@ class BulkIndex(BaseHandler):
             # batch index our searchable data
             proddocs = []
             for product in productchunk:
-                proddocs.append(CreateDocument(product.name, str(product.key.id())))
+                proddocs.append(CreateSortableDocument(
+                    product.name,
+                    str(product.key.id()),
+                    product.department,
+                    product.bestSellingRank,
+                    product.salesRankMediumTerm,
+                    product.onSale))
             search.Index(name=_INDEX_NAME).put(proddocs)
 
 
