@@ -91,19 +91,11 @@ class MainPage(BaseHandler):
             sort_options=sort_opts)
         query_obj = search.Query(query_string=query, options=query_options)
         results = search.Index(name=_INDEX_NAME).search(query=query_obj)
-        if users.get_current_user():
-            url = users.create_logout_url(self.request.uri)
-            url_linktext = 'Logout'
-        else:
-            url = users.create_login_url(self.request.uri)
-            url_linktext = 'Login'
 
         template_values = {
             'results': results,
             'number_returned': len(results.results),
             'query': query,
-            'url': url,
-            'url_linktext': url_linktext,
         }
         self.render_template('index.html', template_values)
 
