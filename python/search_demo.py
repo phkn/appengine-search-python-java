@@ -72,29 +72,32 @@ class MainPage(BaseHandler):
         """Handles a get request with a query."""
         uri = urlparse(self.request.uri)
         query = ''
+        results = []
+        number_returned = 0
         if uri.query:
             query = parse_qs(uri.query)
             query = query['query'][0]
 
-        # sort results by salesRankMediumTerm and bestSellingRank descending
-        expr_list = [search.SortExpression(
-            expression='salesRankMediumTerm', default_value='',
-            direction=search.SortExpression.DESCENDING), search.SortExpression(
-            expression='bestSellingRank', default_value='',
-            direction=search.SortExpression.DESCENDING)]
+            # sort results by salesRankMediumTerm and bestSellingRank descending
+            expr_list = [search.SortExpression(
+                expression='salesRankMediumTerm', default_value='',
+                direction=search.SortExpression.DESCENDING), search.SortExpression(
+                expression='bestSellingRank', default_value='',
+                direction=search.SortExpression.DESCENDING)]
 
-        # construct the sort options
-        sort_opts = search.SortOptions(
-             expressions=expr_list)
-        query_options = search.QueryOptions(
-            limit=10,
-            sort_options=sort_opts)
-        query_obj = search.Query(query_string=query, options=query_options)
-        results = search.Index(name=_INDEX_NAME).search(query=query_obj)
+            # construct the sort options
+            sort_opts = search.SortOptions(
+                 expressions=expr_list)
+            query_options = search.QueryOptions(
+                limit=10,
+                sort_options=sort_opts)
+            query_obj = search.Query(query_string=query, options=query_options)
+            results = search.Index(name=_INDEX_NAME).search(query=query_obj)
+            number_returned = len(results.results)
 
         template_values = {
             'results': results,
-            'number_returned': len(results.results),
+            'number_returned': number_returned,
             'query': query,
         }
         self.render_template('index.html', template_values)
