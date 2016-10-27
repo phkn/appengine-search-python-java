@@ -24,16 +24,26 @@
     {% endif %}
     </p>
     <ul>
-    {% for scored_document in results %}
+    {% for bby_product in dsresults %}
       <li>
-      <!-- doc_id: {{scored_document.doc_id }} -->
-      {% for f in scored_document.fields %}
-        <!-- {{f.name}} --> {{f.value}}
-        &nbsp;
-      {% endfor %}
+          {% if (bby_product.url is not none) %}
+            <a href='{{bby_product.url}}' target="_blank">{{bby_product.name}}</a>
+          {% else %}
+            {{bby_product.name}} 
+          {% endif %}
       </li>
     {% endfor %}
     </ul>
+
+    <!-- Raw search results -->
+    <!-- 
+    {% for scored_document in results %}
+      scored doc_id: {{scored_document.doc_id }}
+      {% for f in scored_document.fields %}
+           {{f.name}} = {{f.value}}
+      {% endfor %}
+    {% endfor %}
+    --> 
 
 <script type="text/javascript" src="/static/js/jquery-1.9.1.js"></script>
 

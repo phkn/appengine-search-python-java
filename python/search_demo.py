@@ -38,6 +38,12 @@ def chunks(l, n):
     for i in xrange(0, len(l), n):
         yield l[i:i + n]
 
+# get a list of the attributes in iterator
+def iterattr(iterator, attributename):
+    for obj in iterator:
+        yield getattr(obj, attributename)
+
+
 class BestBuyProduct(ndb.Model):
     @classmethod
     def _get_kind(cls):
@@ -95,8 +101,15 @@ class MainPage(BaseHandler):
             results = search.Index(name=_INDEX_NAME).search(query=query_obj)
             number_returned = len(results.results)
 
+        # use magic python incantations to extract and filter on returned doc IDs
+        dsids = iterattr(results,'doc_id')
+        # dammit, remember that you have to int() your keys
+        dskeys = [ndb.Key(BestBuyProduct, int(k)) for k in dsids]
+        dsresults = ndb.get_multi(dskeys)
+
         template_values = {
             'results': results,
+            'dsresults': dsresults,
             'number_returned': number_returned,
             'query': query,
         }
