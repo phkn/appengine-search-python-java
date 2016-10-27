@@ -7,10 +7,10 @@
   </head>
   <body style="margin:20px;">
 
-    <form action="/add" method="post">
+    <form action="/add" method="post" id="autosearchform" name="autosearchform">
       <div>Search Demo</div>
-      <div><input type="text" name="search" value="{{query}}"/></div>
-      <div><input type="submit" value="Search"/></div>
+      <div><input type="text" id="autoterm" name="search" value="{{query}}"/></div>
+      <div><input type="submit" id="searchsubmit" value="Search"/></div>
 <!--      
       <div><textarea name="name" rows="1" cols="60"></textarea></div>
       <div><input type="submit" value="Add Product"/></div>
@@ -30,6 +30,33 @@
     {% endfor %}
     </ul>
 
+<script type="text/javascript" src="js/jquery-1.9.1.js"></script>
+
+<script type="text/javascript">
+//alert('HELLO WORLD');
+
+var typingTimer;
+var doneTypingInterval = 500;
+var input = $('#autoterm');
+
+// on keyup, start countdown
+input.on('keyup', function ()
+{
+  clearTimeout(typingTimer);
+  typingTimer = setTimeout(doneTyping, doneTypingInterval);
+});
+
+// on keydown, clear the countdown
+input.on('keydown', function ()
+{
+  clearTimeout(typingTimer);
+});
+
+function doneTyping() {
+  document.getElementById('autosearchform').submit();
+}
+
+</script>
 
   </body>
 </html>
