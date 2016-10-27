@@ -7,16 +7,22 @@
   </head>
   <body style="margin:20px;">
 
+    <h1><img src="/static/images/gcp64.png" /> Product Search</h1>
+
     <form action="/add" method="post" id="autosearchform" name="autosearchform">
-      <div>Search Demo</div>
-      <div><input type="text" id="autoterm" name="search" value="{{query}}" autofocus onfocus="this.value = this.value;"/></div>
+      <div><input type="text" size="60" id="autoterm" name="search" value="{{query}}" autofocus onfocus="this.value = this.value;"/></div>
 <!--      
       <div><textarea name="name" rows="1" cols="60"></textarea></div>
       <div><input type="submit" value="Add Product"/></div>
 -->
     </form>
-
-    {{number_returned}} of {{results.number_found}} products found <p>
+    <p>
+    {% if (results.number_found is defined) %}
+      {{number_returned}} of {{results.number_found}} products found <p>
+    {% else %}
+      Type in a word or words to search the product catalog
+    {% endif %}
+    </p>
     <ul>
     {% for scored_document in results %}
       <li>
